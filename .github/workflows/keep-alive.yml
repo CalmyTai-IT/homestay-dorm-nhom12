@@ -1,0 +1,23 @@
+# Tên workflow — sẽ hiển thị ở tab "Actions" của repo
+name: Keep Render Awake
+
+# "on" = KHI NÀO workflow chạy (các sự kiện kích hoạt)
+on:
+  schedule:
+    # Cron 5 trường, tính theo giờ UTC. '*/10 * * * *' = chạy mỗi 10 phút.
+    # LƯU Ý: cron BẮT BUỘC đặt trong dấu nháy đơn.
+    - cron: '*/10 * * * *'
+  workflow_dispatch:        # thêm nút "Run workflow" để bấm chạy tay (test ngay)
+
+# "jobs" = các công việc. Ở đây chỉ có 1 job tên "ping".
+jobs:
+  ping:
+    runs-on: ubuntu-latest  # GitHub cấp 1 máy ảo Linux để chạy job
+    steps:                  # các bước trong job, chạy tuần tự
+      - name: Ping endpoint /api/health cua backend
+        run: |
+          echo "Ping luc (UTC): $(date -u)"
+          # -f: coi lỗi HTTP là thất bại; -sS: im lặng nhưng vẫn in lỗi;
+          # --max-time 60: chờ tối đa 60s (đủ cho cold start ~50s)
+          curl -fsS --max-time 60 https://homestay-dorm-nhom12.onrender.com/api/health \
+            || echo "Ping that bai (co the server dang khoi dong) — van da danh thuc Render."
