@@ -3,6 +3,11 @@
 
 export const BRANCHES = ['Quận 5', 'Quận 10', 'Thủ Đức']
 
+// Nhãn khu vực rút gọn để hiển thị: bỏ tiền tố "HomeStay Dorm" khỏi tên chi nhánh
+// (vd "HomeStay Dorm Quận 5" -> "Quận 5"). Giá trị lọc vẫn dùng tên đầy đủ để khớp dữ liệu.
+export const branchLabel = (name) =>
+  (name || '').replace(/^HomeStay\s*Dorm\s*/i, '').trim() || name
+
 export const RENT_TYPES = ['Thuê giường (ghép)', 'Thuê nguyên phòng']
 
 export const CAPACITIES = [2, 4, 6]

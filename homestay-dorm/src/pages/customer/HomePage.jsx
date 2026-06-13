@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { api } from '@/lib/api'
-import { BRANCHES, RENT_TYPES, CAPACITIES, PRICE_RANGES } from '@/lib/roomUi'
+import { RENT_TYPES, CAPACITIES, PRICE_RANGES, branchLabel } from '@/lib/roomUi'
 import {
   Search, Sparkles, Shield, Heart, ArrowRight, Star,
   MapPin, Users, CheckCircle2
@@ -22,13 +22,19 @@ export default function HomePage() {
 
   // Phòng nổi bật: lấy từ API thật (3 phòng đang hoạt động & còn chỗ trống)
   const [featuredRooms, setFeaturedRooms] = useState([])
+  const [allRooms, setAllRooms] = useState([])
   useEffect(() => {
     api.getRooms()
-      .then(rs => setFeaturedRooms(
-        rs.filter(r => r.status === 'hoat_dong' && r.bedsAvailable > 0).slice(0, 3)
-      ))
-      .catch(() => setFeaturedRooms([]))
+      .then(rs => {
+        setAllRooms(rs)
+        setFeaturedRooms(rs.filter(r => r.status === 'hoat_dong' && r.bedsAvailable > 0).slice(0, 3))
+      })
+      .catch(() => { setAllRooms([]); setFeaturedRooms([]) })
   }, [])
+
+  // Danh sách KHU VỰC cho ô chọn nhanh — suy ra từ phòng thật (tự cập nhật khi có chi nhánh mới).
+  // value = tên chi nhánh đầy đủ (khớp filter ở trang /search); nhãn hiển thị rút gọn.
+  const branchOptions = [...new Set(allRooms.map(r => r.branch).filter(Boolean))].sort()
 
   // === QUICK SEARCH STATE ===
   // Khi user chọn các filter ở quick search → lưu vào state này
@@ -133,7 +139,7 @@ export default function HomePage() {
               className="h-11 rounded-lg border-[1.5px] border-cream-dark px-4 text-sm bg-white focus:outline-none focus:border-terracotta-500"
             >
               <option value="">Chi nhánh</option>
-              {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+              {branchOptions.map(b => <option key={b} value={b}>{branchLabel(b)}</option>)}
             </select>
 
             {/* Hình thức thuê */}

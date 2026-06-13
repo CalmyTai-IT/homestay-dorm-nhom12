@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { api } from '@/lib/api'
 import {
-  BRANCHES, RENT_TYPES, CAPACITIES, GENDERS, PRICE_RANGES, AMENITIES
+  RENT_TYPES, CAPACITIES, GENDERS, PRICE_RANGES, AMENITIES, branchLabel
 } from '@/lib/roomUi'
 import ContactDialog from '@/components/customer/ContactDialog'
 import {
@@ -49,6 +49,13 @@ export default function SearchPage() {
   })
   const [sortBy, setSortBy] = useState('newest')
   const [contactRoom, setContactRoom] = useState(null)
+
+  // Danh sách KHU VỰC suy ra từ dữ liệu phòng thật (tự cập nhật khi có chi nhánh mới).
+  // Giá trị = tên chi nhánh đầy đủ (để khớp filter r.branch); nhãn hiển thị rút gọn.
+  const branchOptions = useMemo(
+    () => [...new Set(rooms.map(r => r.branch).filter(Boolean))].sort(),
+    [rooms]
+  )
 
 
   // === LOGIC LỌC (chạy trên dữ liệu lấy từ API) ===
@@ -159,16 +166,16 @@ export default function SearchPage() {
                   Khu vực
                 </div>
                 <div className="space-y-2">
-                  {BRANCHES.map(b => (
-                    <label key={b} className="flex items-center gap-2 cursor-pointer hover:bg-warm-white p-1 rounded">
+                  {branchOptions.map(b => (
+                    <label key={b} className="flex items-start gap-2 cursor-pointer hover:bg-warm-white p-1 rounded">
                       <input
                         type="radio"
                         name="branch"
                         checked={filters.branch === b}
                         onChange={() => setFilters({...filters, branch: b})}
-                        className="accent-terracotta-500"
+                        className="accent-terracotta-500 mt-0.5 flex-shrink-0"
                       />
-                      <span className="text-sm">{b}</span>
+                      <span className="text-sm break-words min-w-0">{branchLabel(b)}</span>
                     </label>
                   ))}
                 </div>
@@ -290,7 +297,7 @@ export default function SearchPage() {
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4 p-4 bg-white rounded-xl border border-cream-dark">
             <div className="text-sm text-ink-soft">
               Hiển thị <span className="font-semibold text-ink">{filteredRooms.length}</span> phòng
-              {filters.branch && <> tại <span className="font-semibold text-ink">{filters.branch}</span></>}
+              {filters.branch && <> tại <span className="font-semibold text-ink">{branchLabel(filters.branch)}</span></>}
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-ink-soft">Sắp xếp:</span>
@@ -309,7 +316,7 @@ export default function SearchPage() {
           {/* Active filter chips */}
           {hasActiveFilters && (
             <div className="flex flex-wrap gap-2 mb-4">
-              {filters.branch && <FilterChip label={filters.branch} onRemove={() => setFilters({...filters, branch: ''})} />}
+              {filters.branch && <FilterChip label={branchLabel(filters.branch)} onRemove={() => setFilters({...filters, branch: ''})} />}
               {filters.rentType && <FilterChip label={filters.rentType} onRemove={() => setFilters({...filters, rentType: ''})} />}
               {filters.capacity && <FilterChip label={`${filters.capacity} người`} onRemove={() => setFilters({...filters, capacity: ''})} />}
               {filters.gender && <FilterChip label={filters.gender} onRemove={() => setFilters({...filters, gender: ''})} />}
