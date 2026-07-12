@@ -52,6 +52,14 @@ r.post('/:code/check-members', authenticate, requireRole('manager'), h(async (re
     'phieu_dat_coc', req.params.code)
   res.json(out)
 }))
+// ===== THUÊ CÁ NHÂN: kiểm tra điều kiện lưu trú của khách (Quản lý) =====
+r.post('/:code/check-individual', authenticate, requireRole('manager'), h(async (req,res)=>{
+  const out = await group.checkIndividual(req.params.code, req.body, req.user.id)
+  admin.log(req.user.id,
+    out.decision === 'rejected' ? 'Từ chối ký (điều kiện lưu trú cá nhân)' : 'Kiểm tra điều kiện lưu trú cá nhân',
+    'phieu_dat_coc', req.params.code)
+  res.json(out)
+}))
 r.post('/:code/proof', authenticate, h(async (req,res)=>res.json(await svc.attachProof(req.params.code, req.user.id, req.body.anh, req.body.taiKhoan))))
 r.post('/:code/cash', authenticate, h(async (req,res)=>res.json(await svc.chooseCash(req.params.code, req.user.id))))
 export default r

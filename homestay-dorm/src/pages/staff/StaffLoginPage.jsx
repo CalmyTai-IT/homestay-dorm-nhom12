@@ -68,6 +68,7 @@ export default function StaffLoginPage() {
     sale: ShieldCheck,
     manager: Building2,
     accountant: Calculator,
+    admin: Lock,
   }
 
   return (

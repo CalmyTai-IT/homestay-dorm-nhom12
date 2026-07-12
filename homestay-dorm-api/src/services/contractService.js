@@ -25,12 +25,15 @@ export async function createContract(dto, _managerId) {
   if (slip.trang_thai !== 'da_thanh_toan') throw conflict('Cọc chưa được thanh toán')
   if (await contracts.existsByDeposit(slip.id)) throw conflict('Phiếu cọc này đã có hợp đồng')
   // Nhóm thuê: nếu đã kiểm tra điều kiện mà NGƯỜI ĐẠI DIỆN không đạt -> không cho lập HĐ
-  // (phải hủy thuê & hoàn 80%, hoặc đổi đại diện). Thuê cá nhân (không nhóm) bỏ qua kiểm tra này.
+  // (phải hủy thuê & hoàn 80%, hoặc đổi đại diện).
   if (slip.nhom_thue_id) {
     const members = await groups.membersOf(slip.nhom_thue_id)
     const rep = members.find(m => m.is_dai_dien)
     if (rep && rep.dat_dieu_kien === false)
       throw conflict('Người đại diện không đủ điều kiện lưu trú — không thể lập hợp đồng cho nhóm này.')
+  } else if (slip.dk_tieu_chi?.residencyCheck?.passed === false) {
+    // Thuê cá nhân: Quản lý đã đánh dấu KHÔNG đủ điều kiện lưu trú -> từ chối lập HĐ (đề mục 3.1.3).
+    throw conflict('Khách không đủ điều kiện lưu trú — không thể lập hợp đồng. Hãy từ chối ký và hoàn cọc 80%.')
   }
   if (!dto.ngayBatDau || !dto.thoiHan) throw badRequest('Thiếu ngày bắt đầu hoặc thời hạn')
   const start = new Date(dto.ngayBatDau)

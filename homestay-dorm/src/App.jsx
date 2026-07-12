@@ -44,7 +44,7 @@ const AccountantDepositRequestsPage = lazy(() => import('@/pages/staff/accountan
 const SaleBookingsPage = lazy(() => import('@/pages/staff/sale/SaleBookingsPage'))
 const SaleDepositsPage = lazy(() => import('@/pages/staff/sale/SaleDepositsPage'))
 const SettingsPage = lazy(() => import('@/pages/staff/SettingsPage'))
-const SystemManagementPage = lazy(() => import('@/pages/staff/manager/SystemManagementPage'))
+const SystemManagementPage = lazy(() => import('@/pages/staff/admin/SystemManagementPage'))
 
 // Màn chờ hiển thị trong lúc tải chunk của trang.
 function PageLoader() {
@@ -124,8 +124,17 @@ function App() {
             <Route path="/staff/manager/handovers" element={<ManagerHandoversPage />} />
             <Route path="/staff/manager/checkouts" element={<ManagerCheckoutsPage />} />
             <Route path="/staff/manager/rooms" element={<ManagerRoomsPage />} />
-            <Route path="/staff/manager/system" element={<SystemManagementPage />} />
             <Route path="/staff/manager/settings" element={<SettingsPage />} />
+          </Route>
+
+          {/* Staff Admin (Quản trị hệ thống / IT) — tách khỏi Quản lý nghiệp vụ */}
+          <Route element={
+            <ProtectedStaffRoute allowedRoles={['admin']}>
+              <StaffLayout />
+            </ProtectedStaffRoute>
+          }>
+            <Route path="/staff/admin/dashboard" element={<SystemManagementPage />} />
+            <Route path="/staff/admin/settings" element={<SettingsPage />} />
           </Route>
 
           {/* Staff Accountant */}

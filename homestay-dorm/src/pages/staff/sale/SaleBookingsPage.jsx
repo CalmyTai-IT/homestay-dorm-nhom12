@@ -30,7 +30,8 @@ function mapSaleBooking(b) {
     groupMembers: tc.groupMembers || [],
     duration: b.thoi_han_thue ?? tc.duration,
     notes: tc.notes || '',
-    scheduledViewing: tc.scheduledViewing || null,
+    // Lịch xem phòng: ưu tiên bảng lich_xem_phong (b.scheduled_viewing), fallback tieu_chi (dữ liệu cũ)
+    scheduledViewing: b.scheduled_viewing || tc.scheduledViewing || null,
     rejectReason: tc.rejectReason || '',
     // Liên lạc ưa thích: lấy từ tieu_chi nếu có; mặc định "gọi điện" để modal không lỗi undefined
     contactPreference: tc.contactPreference || {
@@ -342,14 +343,14 @@ function BookingDetailModal({ booking, onClose, onUpdated, roomsById = {} }) {
       alert('Vui lòng chọn ngày và giờ xem phòng')
       return
     }
-    api.setBookingStatus(booking.code, 'da_hen_xem', { scheduledViewing: { date: scheduleData.date, time: scheduleData.time } })
+    api.scheduleViewing(booking.code, { date: scheduleData.date, time: scheduleData.time })
       .then(onUpdated)
       .catch(e => alert(e.message || 'Không lên lịch được'))
   }
 
   // Đánh dấu đã xem phòng
   const handleMarkViewed = async () => {
-    try { await api.setBookingStatus(booking.code, 'da_xem_phong'); onUpdated() }
+    try { await api.markViewed(booking.code); onUpdated() }
     catch (e) { alert(e.message || 'Không cập nhật được') }
   }
 

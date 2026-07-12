@@ -11,12 +11,14 @@ export const ROLE_LABELS = {
   sale: 'Nhân viên Sale',
   manager: 'Quản lý',
   accountant: 'Kế toán',
+  admin: 'Quản trị hệ thống',
 }
 
 export const ROLE_COLORS = {
   sale: 'terracotta',
   manager: 'mint',
   accountant: 'gold',
+  admin: 'ink',
 }
 
 // 3 tài khoản nhân viên mẫu
@@ -52,6 +54,16 @@ export const DEMO_STAFF = [
     avatar: 'H',
     joinedAt: '2023-06-20',
   },
+  {
+    id: 'staff_admin_001',
+    email: 'admin@homestay.vn',
+    fullName: 'Quản trị hệ thống',
+    role: 'admin',
+    branch: 'Toàn hệ thống',
+    phone: '0900000004',
+    avatar: 'A',
+    joinedAt: '2023-01-01',
+  },
 ]
 
 // Tìm staff theo email (cho login)
@@ -61,6 +73,7 @@ export function getDefaultStaffHome(role) {
     sale: '/staff/sale/dashboard',
     manager: '/staff/manager/dashboard',
     accountant: '/staff/accountant/dashboard',
+    admin: '/staff/admin/dashboard',
   }
   return map[role] || '/staff/login'
 }

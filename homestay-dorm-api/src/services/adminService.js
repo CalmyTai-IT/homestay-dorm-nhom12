@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import * as admin from '../repositories/adminRepo.js'
 import { notFound, badRequest, conflict, forbidden } from '../utils/errors.js'
 
-const ROLES = ['sale', 'manager', 'accountant']
+const ROLES = ['sale', 'manager', 'accountant', 'admin']
 const DEFAULT_PASSWORD = '123456'
 const emailOk = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e || '')
 

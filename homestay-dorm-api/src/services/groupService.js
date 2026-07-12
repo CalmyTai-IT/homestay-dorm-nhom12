@@ -27,9 +27,50 @@ function shapeMembers(rows) {
 export async function membersForDeposit(depositCode) {
   const slip = await deposits.byCode(depositCode)
   if (!slip) throw notFound('Không tìm thấy phiếu cọc')
-  if (!slip.nhom_thue_id) return { hasGroup: false, members: [] }
+  // Thuê CÁ NHÂN (không nhóm): trả thông tin người thuê + kết quả kiểm tra điều kiện đã lưu (nếu có).
+  if (!slip.nhom_thue_id) return {
+    hasGroup: false,
+    individual: {
+      khachHangId: slip.khach_hang_id,
+      hoTen: slip.ho_ten,
+      soGiayTo: slip.so_giay_to || '',
+      soDienThoai: slip.so_dien_thoai || '',
+    },
+    residencyCheck: slip.dk_tieu_chi?.residencyCheck || null,
+    members: [],
+  }
   const rows = await groups.membersOf(slip.nhom_thue_id)
   return { hasGroup: true, nhomThueId: slip.nhom_thue_id, soGiuong: Number(slip.so_giuong || 0), members: shapeMembers(rows) }
+}
+
+// UC nghiệp vụ "Kiểm tra điều kiện lưu trú" (cho khách CÁ NHÂN — mục 3.1.3 của đề):
+//  Quản lý ghi nhận khách ĐẠT / KHÔNG ĐẠT điều kiện lưu trú trước khi lập hợp đồng.
+//  - datDieuKien = true  -> lưu kết quả đạt; cho phép lập hợp đồng.
+//  - datDieuKien = false (hoặc decision='reject') -> Quản lý TỪ CHỐI ký:
+//        huỷ cọc -> Kế toán hoàn 80% (dùng lại luồng hoàn cọc chưa ký có sẵn).
+export async function checkIndividual(depositCode, dto, managerId) {
+  const slip = await deposits.byCode(depositCode)
+  if (!slip) throw notFound('Không tìm thấy phiếu cọc')
+  if (slip.nhom_thue_id) throw conflict('Phiếu cọc này là thuê theo nhóm (dùng kiểm tra theo nhóm)')
+  if (slip.trang_thai !== 'da_thanh_toan') throw conflict('Cọc chưa được chốt')
+  if (slip.has_contract) throw conflict('Phiếu cọc đã có hợp đồng')
+
+  const passed = dto.datDieuKien !== false && dto.decision !== 'reject'
+  // Ghi kết quả kiểm tra vào tieu_chi của phiếu đăng ký (giữ nhất quán với cách lưu trạng thái nghiệp vụ khác)
+  if (slip.dk_ma_phieu)
+    await bookings.patchTieuChi(null, slip.dk_ma_phieu, {
+      residencyCheck: { passed, note: dto.lyDo || null, checkedBy: managerId, checkedAt: new Date().toISOString() },
+    })
+
+  if (!passed) {
+    // Không đủ điều kiện -> Quản lý từ chối ký -> huỷ cọc -> Kế toán hoàn 80%.
+    await cancelDeposit(
+      depositCode,
+      dto.lyDo || 'Khách không đủ điều kiện lưu trú (Quản lý từ chối ký hợp đồng)',
+      managerId)
+    return { decision: 'rejected', passed: false, refundRate: 80 }
+  }
+  return { decision: 'passed', passed: true }
 }
 
 // UC nghiệp vụ "Kiểm tra điều kiện lưu trú" (cho nhóm thuê):

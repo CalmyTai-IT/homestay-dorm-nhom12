@@ -17,9 +17,15 @@ export async function sale(chiNhanhId = null) {
 
   const c = (await query(`select
     (select count(*) from phieu_dang_ky_thue where trang_thai='cho_xem_phong'${fb})::int as new_bookings,
-    (select count(*) from phieu_dang_ky_thue
-       where trang_thai='da_hen_xem'
-         and (tieu_chi->'scheduledViewing'->>'date')::date = (now() at time zone 'Asia/Ho_Chi_Minh')::date${fb})::int as viewings_today,
+    (select count(*) from phieu_dang_ky_thue p
+       where p.trang_thai='da_hen_xem'
+         and coalesce(
+               (select (l.thoi_gian_hen at time zone 'Asia/Ho_Chi_Minh')::date
+                  from lich_xem_phong l
+                  where l.phieu_dang_ky_id=p.id and l.trang_thai in ('da_len_lich','doi_lich')
+                  order by l.id desc limit 1),
+               (p.tieu_chi->'scheduledViewing'->>'date')::date
+             ) = (now() at time zone 'Asia/Ho_Chi_Minh')::date${fb})::int as viewings_today,
     (select count(*) from phieu_dat_coc where trang_thai='cho_thanh_toan'${fb})::int as awaiting_deposit,
     (select count(*) from phieu_dat_coc
        where trang_thai='da_thanh_toan'
@@ -33,11 +39,24 @@ export async function sale(chiNhanhId = null) {
     order by b.created_at asc limit 8`, params)).rows
 
   const viewings = (await query(`
-    select b.ma_phieu, b.tieu_chi, k.ho_ten, k.so_dien_thoai
+    select b.ma_phieu, k.ho_ten, k.so_dien_thoai,
+           b.tieu_chi->>'roomId' as room_id,
+           coalesce(
+             to_char(l.thoi_gian_hen at time zone 'Asia/Ho_Chi_Minh','HH24:MI'),
+             b.tieu_chi->'scheduledViewing'->>'time'
+           ) as gio
     from phieu_dang_ky_thue b join khach_hang k on k.id=b.khach_hang_id
+      left join lateral (
+        select l.thoi_gian_hen from lich_xem_phong l
+        where l.phieu_dang_ky_id=b.id and l.trang_thai in ('da_len_lich','doi_lich')
+        order by l.id desc limit 1
+      ) l on true
     where b.trang_thai='da_hen_xem'
-      and (b.tieu_chi->'scheduledViewing'->>'date')::date = (now() at time zone 'Asia/Ho_Chi_Minh')::date${fbB}
-    order by (b.tieu_chi->'scheduledViewing'->>'time') asc limit 8`, params)).rows
+      and coalesce(
+            (l.thoi_gian_hen at time zone 'Asia/Ho_Chi_Minh')::date,
+            (b.tieu_chi->'scheduledViewing'->>'date')::date
+          ) = (now() at time zone 'Asia/Ho_Chi_Minh')::date${fbB}
+    order by gio asc limit 8`, params)).rows
 
   return {
     stats: {
@@ -57,9 +76,9 @@ export async function sale(chiNhanhId = null) {
     })),
     viewingsToday: viewings.map(v => ({
       code: v.ma_phieu,
-      time: v.tieu_chi?.scheduledViewing?.time || '--:--',
+      time: v.gio || '--:--',
       customerName: v.ho_ten,
-      roomId: v.tieu_chi?.roomId || '—',
+      roomId: v.room_id || '—',
       phone: v.so_dien_thoai || '',
     })),
   }

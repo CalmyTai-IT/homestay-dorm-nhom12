@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import * as svc from '../services/bookingService.js'
+import * as viewingSvc from '../services/viewingService.js'
 import * as admin from '../services/adminService.js'
 import { authenticate, requireRole } from '../middleware/auth.js'
 const r = Router()
@@ -28,7 +29,20 @@ r.post('/:code/cancel-refund', authenticate, requireRole('accountant'), h(async 
   admin.log(req.user.id, 'Hoàn cọc do hủy đơn', 'phieu_dang_ky_thue', req.params.code)
   res.json(out)
 }))
+// ===== LỊCH XEM PHÒNG (bảng lich_xem_phong) — Sale sắp xếp / dời / đánh dấu đã xem =====
+r.post('/:code/schedule-viewing', authenticate, requireRole('sale'), h(async (req,res)=>{
+  const out = await viewingSvc.schedule(req.params.code, req.body, req.user.id)
+  admin.log(req.user.id, 'Lên lịch xem phòng', 'lich_xem_phong', req.params.code)
+  res.status(201).json(out)
+}))
+r.post('/:code/mark-viewed', authenticate, requireRole('sale'), h(async (req,res)=>{
+  const out = await viewingSvc.markViewed(req.params.code)
+  admin.log(req.user.id, 'Đánh dấu đã xem phòng', 'lich_xem_phong', req.params.code)
+  res.json(out)
+}))
+r.get('/:code/viewings', authenticate, requireRole('sale','manager'), h(async (req,res)=>res.json(await viewingSvc.listByBooking(req.params.code))))
+
 r.get('/:code', authenticate, h(async (req,res)=>res.json(await svc.getBooking(req.params.code))))
-r.patch('/:code/status', authenticate, requireRole('sale'), h(async (req,res)=>res.json(await svc.setStatus(req.params.code, req.body.status, req.body.extra))))
+r.patch('/:code/status', authenticate, requireRole('sale'), h(async (req,res)=>res.json(await svc.setStatus(req.params.code, req.body.status, req.body.extra, req.user.id))))
 r.post('/:code/cancel', authenticate, h(async (req,res)=>res.json(await svc.cancelByCustomer(req.params.code, req.user.id, req.body.lyDo))))
 export default r

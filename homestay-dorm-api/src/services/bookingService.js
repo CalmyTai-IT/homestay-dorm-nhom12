@@ -6,6 +6,7 @@ import * as users from '../repositories/userRepo.js'
 import * as groups from '../repositories/groupRepo.js'
 import * as payments from '../repositories/paymentRepo.js'
 import * as notify from './notifyService.js'
+import * as viewing from './viewingService.js'
 import { getConfig } from './configService.js'
 import { bookingCode } from '../utils/codes.js'
 import { notFound, badRequest, forbidden, conflict } from '../utils/errors.js'
@@ -54,6 +55,26 @@ export async function createBooking(dto, khachHangId) {
     }
   }
 
+  // RÀNG BUỘC PHÒNG & SỨC CHỨA (đề mục 3.1.1: đối chiếu sức chứa phòng theo số người dự kiến).
+  // Chỉ áp dụng khi đơn gắn với một phòng cụ thể (đăng ký theo phòng).
+  if (room) {
+    if (room.trang_thai && room.trang_thai !== 'hoat_dong')
+      throw badRequest('Phòng hiện không nhận đăng ký (đang bảo trì hoặc ngừng hoạt động).')
+    const capacity = Number(room.suc_chua || 0)
+    if (capacity > 0) {
+      // Thuê nguyên phòng => số giường = sức chứa; ở ghép => số giường khách chọn.
+      const soGiuong = tc.rentType === 'whole_room' ? capacity : Number(tc.numberOfBeds || 1)
+      const soNguoi = Number(tc.numberOfPeople || (isGroup ? tc.groupMembers.length + 1 : soGiuong))
+      if (soGiuong < 1) throw badRequest('Số giường thuê không hợp lệ.')
+      if (tc.rentType !== 'whole_room' && soGiuong > capacity)
+        throw badRequest(`Số giường đăng ký (${soGiuong}) vượt sức chứa phòng (${capacity} giường).`)
+      if (soNguoi > capacity)
+        throw badRequest(`Số người dự kiến (${soNguoi}) vượt sức chứa phòng (${capacity} người).`)
+      if (tc.rentType !== 'whole_room' && soNguoi > soGiuong)
+        throw badRequest(`Số người ở (${soNguoi}) không được vượt số giường thuê (${soGiuong}).`)
+    }
+  }
+
   return withTransaction(async (c) => {
     let nhomThueId = dto.nhomThueId || null
 
@@ -95,19 +116,28 @@ export async function getBooking(code) {
   const b = await bookings.byCode(code); if (!b) throw notFound('Không tìm thấy phiếu đăng ký'); return b
 }
 // Sale: cập nhật trạng thái (đã lên lịch xem / đã xem phòng)
-export async function setStatus(code, status, extra) {
+export async function setStatus(code, status, extra, saleId = null) {
   const ok = ['cho_xem_phong','dang_xu_ly','da_hen_xem','da_xem_phong','da_dat_coc','huy']
   if (!ok.includes(status)) throw badRequest('Trạng thái không hợp lệ')
   const b = await bookings.byCode(code)
   if (!b) throw notFound('Không tìm thấy phiếu đăng ký')
 
+  // LỊCH XEM PHÒNG giờ là thực thể riêng (bảng lich_xem_phong) -> uỷ thác cho viewingService.
+  // Vẫn nhận được lệnh setStatus cũ để tương thích ngược (frontend cũ / tích hợp khác).
+  if (status === 'da_hen_xem' && extra?.scheduledViewing)
+    return viewing.schedule(code, extra.scheduledViewing, saleId)
+  if (status === 'da_xem_phong')
+    return viewing.markViewed(code)
+
   // Từ chối/hủy đơn (sale/quản lý/kế toán): ngoài đổi trạng thái, phải TRẢ LẠI giường
-  // đang giữ chỗ cho đơn này (nếu đã có phiếu cọc giữ giường) để phòng còn trống cho khách khác.
+  // đang giữ chỗ cho đơn này (nếu đã có phiếu cọc giữ giường) để phòng còn trống cho khách khác,
+  // đồng thời huỷ lịch xem phòng còn hiệu lực (nếu có).
   if (status === 'huy') {
     const lyDo = extra?.rejectReason || extra?.lyDo || 'Nhân viên từ chối đơn'
     const dep = await deposits.activeByBooking(b.id)
     return withTransaction(async (c) => {
       await bookings.cancelTx(c, code, lyDo)
+      await viewing.cancelForBooking(c, b.id)
       if (dep) {
         await deposits.updateStatus(c, dep.ma_phieu, 'da_huy', lyDo)
         const bedIds = await deposits.bedsOf(dep.id)
@@ -266,6 +296,7 @@ export async function myBookingsFull(khachHangId) {
   return rows.map(r => ({
     ma_phieu: r.ma_phieu,
     tieu_chi: r.tieu_chi,
+    viewing: r.viewing || null,   // lịch xem phòng lấy từ bảng lich_xem_phong
     created_at: r.created_at,
     ngay_du_kien_vao_o: r.ngay_du_kien_vao_o,
     thoi_han_thue: r.thoi_han_thue,

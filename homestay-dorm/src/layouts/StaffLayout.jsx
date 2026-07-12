@@ -29,13 +29,16 @@ const ROLE_MENUS = {
     { to: '/staff/manager/handovers', label: 'Bàn giao phòng', icon: Home },
     { to: '/staff/manager/checkouts', label: 'Trả phòng', icon: ClipboardList },
     { to: '/staff/manager/rooms', label: 'Quản lý phòng', icon: Building2 },
-    { to: '/staff/manager/system', label: 'Quản lý hệ thống', icon: ShieldCheck },
   ],
   accountant: [
     { to: '/staff/accountant/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
     { to: '/staff/accountant/deposit-requests', label: 'Yêu cầu thanh toán', icon: Wallet },
     { to: '/staff/accountant/payments', label: 'Đối soát thanh toán', icon: CreditCard },
     { to: '/staff/accountant/refunds', label: 'Hoàn cọc', icon: Calculator },
+  ],
+  admin: [
+    { to: '/staff/admin/dashboard', label: 'Quản lý hệ thống', icon: ShieldCheck },
+    { to: '/staff/admin/settings', label: 'Cài đặt', icon: Settings },
   ],
 }
 
@@ -141,6 +144,7 @@ export default function StaffLayout() {
     terracotta: { bg: 'bg-terracotta-500', text: 'text-terracotta-500', bgLight: 'bg-terracotta-50' },
     mint: { bg: 'bg-mint', text: 'text-mint-dark', bgLight: 'bg-mint-light' },
     gold: { bg: 'bg-gold', text: 'text-gold', bgLight: 'bg-gold-light' },
+    ink: { bg: 'bg-ink', text: 'text-ink', bgLight: 'bg-cream-dark' },
   }[roleColor]
 
   return (

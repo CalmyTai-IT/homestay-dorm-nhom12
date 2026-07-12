@@ -1,7 +1,22 @@
 import { query } from '../config/db.js'
-const SEL = `select b.*, k.ho_ten, k.so_dien_thoai, k.email, k.so_giay_to, k.gioi_tinh, k.ngay_sinh, c.ma_chi_nhanh
+// Lịch xem phòng mới nhất (còn hiệu lực hoặc đã xem) của mỗi phiếu -> JSON {date,time,trang_thai,staffName}
+// Lấy từ BẢNG lich_xem_phong (nguồn chuẩn), thay cho tieu_chi.scheduledViewing (JSONB) trước đây.
+const LXP_JOIN = `
+  left join lateral (
+    select jsonb_build_object(
+      'date', to_char(l.thoi_gian_hen at time zone 'Asia/Ho_Chi_Minh','YYYY-MM-DD'),
+      'time', to_char(l.thoi_gian_hen at time zone 'Asia/Ho_Chi_Minh','HH24:MI'),
+      'trang_thai', l.trang_thai,
+      'staffName', nv.ho_ten
+    ) as sv
+    from lich_xem_phong l left join nhan_vien nv on nv.id=l.nhan_vien_sale_id
+    where l.phieu_dang_ky_id = b.id and l.trang_thai <> 'huy'
+    order by l.id desc limit 1
+  ) lxp on true`
+const SEL = `select b.*, k.ho_ten, k.so_dien_thoai, k.email, k.so_giay_to, k.gioi_tinh, k.ngay_sinh, c.ma_chi_nhanh,
+    lxp.sv as scheduled_viewing
   from phieu_dang_ky_thue b join khach_hang k on k.id=b.khach_hang_id
-  left join chi_nhanh c on c.id=b.chi_nhanh_id`
+  left join chi_nhanh c on c.id=b.chi_nhanh_id${LXP_JOIN}`
 export const insert = async (client, b) => (await (client||{query}).query(
   `insert into phieu_dang_ky_thue (ma_phieu, khach_hang_id, nhom_thue_id, nhan_vien_sale_id, chi_nhanh_id, tieu_chi, ngay_du_kien_vao_o, thoi_han_thue, trang_thai, ghi_chu)
    values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
@@ -33,8 +48,20 @@ export const fullByCustomer = async (khachHangId) => (await query(`
          b.ngay_du_kien_vao_o, b.thoi_han_thue,
          d.ma_phieu as coc_ma, d.trang_thai as coc_trang_thai, d.so_tien_coc, d.han_thanh_toan,
          h.ma_hop_dong, h.trang_thai as hd_trang_thai, h.ngay_bat_dau, h.ngay_ket_thuc,
-         tp.ma_phieu as tra_ma, tp.trang_thai as tra_trang_thai, tp.ngay_dang_ky as tra_ngay
+         tp.ma_phieu as tra_ma, tp.trang_thai as tra_trang_thai, tp.ngay_dang_ky as tra_ngay,
+         lxp.sv as viewing
   from phieu_dang_ky_thue b
+  left join lateral (
+    select jsonb_build_object(
+      'date', to_char(l.thoi_gian_hen at time zone 'Asia/Ho_Chi_Minh','YYYY-MM-DD'),
+      'time', to_char(l.thoi_gian_hen at time zone 'Asia/Ho_Chi_Minh','HH24:MI'),
+      'trang_thai', l.trang_thai,
+      'staffName', nv.ho_ten
+    ) as sv
+    from lich_xem_phong l left join nhan_vien nv on nv.id=l.nhan_vien_sale_id
+    where l.phieu_dang_ky_id = b.id and l.trang_thai <> 'huy'
+    order by l.id desc limit 1
+  ) lxp on true
   left join lateral (
     select dc.* from phieu_dat_coc dc
     where dc.phieu_dang_ky_id = b.id and dc.trang_thai <> 'da_huy'

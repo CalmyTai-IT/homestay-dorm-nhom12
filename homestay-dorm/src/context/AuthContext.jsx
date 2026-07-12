@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
   const isCustomer = () => user?.role === 'customer'
 
   // user là nhân viên (bất kỳ role nào)?
-  const isStaff = () => ['sale', 'manager', 'accountant'].includes(user?.role)
+  const isStaff = () => ['sale', 'manager', 'accountant', 'admin'].includes(user?.role)
 
   // user có role cụ thể không?
   const hasRole = (role) => user?.role === role

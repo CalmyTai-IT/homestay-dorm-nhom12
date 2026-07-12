@@ -25,6 +25,7 @@ const ROLE_OPTIONS = [
   { value: 'sale', label: 'Nhân viên Sale' },
   { value: 'accountant', label: 'Kế toán' },
   { value: 'manager', label: 'Quản lý' },
+  { value: 'admin', label: 'Quản trị hệ thống' },
 ]
 
 function RoleBadge({ role }) {

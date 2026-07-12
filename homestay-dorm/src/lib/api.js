@@ -87,6 +87,10 @@ export const api = {
   myBookingsFull: () => request('/bookings/me/full'),
   listBookings: (status) => request('/bookings' + (status ? `?status=${status}` : '')),
   setBookingStatus: (code, status, extra) => request(`/bookings/${code}/status`, { method: 'PATCH', body: { status, extra } }),
+  // Lịch xem phòng (bảng lich_xem_phong): Sale sắp xếp/dời lịch, đánh dấu đã xem, xem lịch sử.
+  scheduleViewing: (code, dto) => request(`/bookings/${code}/schedule-viewing`, { method: 'POST', body: dto }),
+  markViewed: (code) => request(`/bookings/${code}/mark-viewed`, { method: 'POST' }),
+  listViewings: (code) => request(`/bookings/${code}/viewings`),
   // Khách tự hủy đơn của mình (trước khi ký HĐ). Backend giải phóng giường + đánh dấu hoàn 80% nếu đã cọc.
   cancelBooking: (code, lyDo) => request(`/bookings/${code}/cancel`, { method: 'POST', body: { lyDo } }),
   // Luồng hủy đơn ĐÃ CỌC (Sale -> Quản lý -> Kế toán hoàn 80%)
@@ -130,9 +134,10 @@ export const api = {
   readyDeposits: () => request('/contracts/ready-deposits'),
   signContract: (code) => request(`/contracts/${code}/sign`, { method: 'POST' }),
 
-  // ===== THUÊ THEO NHÓM: kiểm tra điều kiện lưu trú từng thành viên (Quản lý) =====
+  // ===== KIỂM TRA ĐIỀU KIỆN LƯU TRÚ (Quản lý) — nhóm & cá nhân =====
   getDepositMembers: (code) => request(`/deposits/${code}/members`),
   checkDepositMembers: (code, body) => request(`/deposits/${code}/check-members`, { method: 'POST', body }),
+  checkDepositIndividual: (code, body) => request(`/deposits/${code}/check-individual`, { method: 'POST', body }),
 
   // ===== CHECKOUTS / REFUND =====
   registerCheckout: (dto) => request('/checkouts', { method: 'POST', body: dto }),
@@ -229,10 +234,11 @@ export const mapFullBooking = (reg) => {
       priorities: tc.priorities || [],
       notes: tc.notes,
     },
-    // Lịch hẹn xem phòng (Sale lưu vào tieu_chi); staffName có thể trống → để nhãn mặc định
-    scheduledViewing: tc.scheduledViewing
-      ? { date: tc.scheduledViewing.date, time: tc.scheduledViewing.time, staffName: tc.scheduledViewing.staffName || 'phụ trách' }
-      : null,
+    // Lịch hẹn xem phòng: ưu tiên bảng lich_xem_phong (reg.viewing), fallback tieu_chi cho dữ liệu cũ.
+    scheduledViewing: (() => {
+      const v = reg.viewing || tc.scheduledViewing
+      return v ? { date: v.date, time: v.time, staffName: v.staffName || 'phụ trách' } : null
+    })(),
     cancelReason: tc.rejectReason || null,
     cancelledAt: reg.ui_status === 'cancelled' ? reg.created_at : null,
   }

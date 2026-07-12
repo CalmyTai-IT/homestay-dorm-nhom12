@@ -316,6 +316,7 @@ function CreateContractModal({ deposit, onClose, onCreated }) {
   // Nhóm thuê: kiểm tra điều kiện lưu trú từng người TRƯỚC khi lập hợp đồng
   const [group, setGroup] = useState(null)        // { hasGroup, members, nhomThueId } | null
   const [elig, setElig] = useState({})            // khachHangId -> true|false (mặc định "đạt")
+  const [indivEligible, setIndivEligible] = useState(true)  // thuê cá nhân: đạt/không đạt điều kiện lưu trú
   const [loadingMembers, setLoadingMembers] = useState(true)
 
   useEffect(() => {
@@ -329,6 +330,8 @@ function CreateContractModal({ deposit, onClose, onCreated }) {
           const init = {}
           g.members.forEach(m => { init[m.khachHangId] = m.datDieuKien !== false })
           setElig(init)
+        } else {
+          setIndivEligible(g.residencyCheck?.passed !== false)
         }
       })
       .catch(() => { if (alive) setGroup({ hasGroup: false, members: [] }) })
@@ -363,6 +366,10 @@ function CreateContractModal({ deposit, onClose, onCreated }) {
       if (isGroup) {
         if (!repEligible) { setError('Người đại diện không đủ điều kiện — hãy hủy thuê (hoàn 80%) hoặc đổi đại diện.'); setSubmitting(false); return }
         await api.checkDepositMembers(deposit.code, { eligibility: eligibilityPayload(), decision: 'continue' })
+      } else {
+        // Thuê cá nhân: ghi nhận khách ĐẠT điều kiện lưu trú trước khi lập HĐ
+        if (!indivEligible) { setError('Khách không đủ điều kiện — hãy dùng "Từ chối (hoàn 80%)".'); setSubmitting(false); return }
+        await api.checkDepositIndividual(deposit.code, { datDieuKien: true })
       }
       await api.createContract({ depositCode: deposit.code, ngayBatDau: startDate, thoiHan: Number(duration) })
       onCreated()
@@ -383,6 +390,21 @@ function CreateContractModal({ deposit, onClose, onCreated }) {
       onCreated()
     } catch (e) {
       setError(e.message || 'Không hủy được')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // Thuê cá nhân: khách KHÔNG đủ điều kiện -> Quản lý từ chối ký -> hủy cọc -> Kế toán hoàn 80%
+  const handleRejectIndividual = async () => {
+    if (!window.confirm('Từ chối ký cho khách này (không đủ điều kiện lưu trú)? Khách sẽ được hoàn 80% tiền cọc theo quy định (Kế toán xử lý hoàn).')) return
+    setError('')
+    try {
+      setSubmitting(true)
+      await api.checkDepositIndividual(deposit.code, { datDieuKien: false, decision: 'reject' })
+      onCreated()
+    } catch (e) {
+      setError(e.message || 'Không từ chối được')
     } finally {
       setSubmitting(false)
     }
@@ -457,6 +479,29 @@ function CreateContractModal({ deposit, onClose, onCreated }) {
             </div>
           )}
 
+          {/* KIỂM TRA ĐIỀU KIỆN LƯU TRÚ — thuê CÁ NHÂN */}
+          {!loadingMembers && !isGroup && (
+            <div>
+              <h3 className="text-xs font-semibold text-ink-soft uppercase tracking-wider mb-2 flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> Kiểm tra điều kiện lưu trú</h3>
+              <p className="text-[11px] text-ink-muted mb-2.5">Đánh dấu khách <strong>đủ</strong>/<strong>không đủ</strong> điều kiện lưu trú (giấy tờ, giới tính, độ tuổi…). Nếu không đủ, Quản lý từ chối ký và khách được hoàn 80% tiền cọc.</p>
+              <div className="flex items-center gap-3 p-2.5 bg-warm-white rounded-lg border border-cream-dark">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold truncate">{deposit.customer.fullName}</div>
+                  <div className="text-xs text-ink-muted truncate">{[deposit.customer.idNumber && `CCCD ${deposit.customer.idNumber}`, deposit.customer.phone].filter(Boolean).join(' · ') || '—'}</div>
+                </div>
+                <div className="flex rounded-lg overflow-hidden border border-cream-dark text-xs flex-shrink-0">
+                  <button type="button" onClick={() => setIndivEligible(true)} className={`px-2.5 py-1.5 font-medium ${indivEligible ? 'bg-mint text-white' : 'bg-white text-ink-soft hover:bg-cream-light'}`}>Đạt</button>
+                  <button type="button" onClick={() => setIndivEligible(false)} className={`px-2.5 py-1.5 font-medium ${!indivEligible ? 'bg-red-500 text-white' : 'bg-white text-ink-soft hover:bg-cream-light'}`}>Không đạt</button>
+                </div>
+              </div>
+              {!indivEligible && (
+                <div className="mt-2 p-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /> Khách không đủ điều kiện — không thể lập hợp đồng. Hãy dùng "Từ chối (hoàn 80%)".
+                </div>
+              )}
+            </div>
+          )}
+
           <div>
             <h3 className="text-xs font-semibold text-ink-soft uppercase tracking-wider mb-3">Điều khoản thuê</h3>
             <div className="space-y-3">
@@ -526,9 +571,11 @@ function CreateContractModal({ deposit, onClose, onCreated }) {
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={onClose} className="flex-1" disabled={submitting}>Hủy</Button>
-              <Button onClick={handleSubmit} disabled={submitting || !startDate} variant="mint" className="flex-1">
-                {submitting ? 'Đang lập...' : <><Send className="w-4 h-4" /> Lập hợp đồng</>}
+              <Button variant="outline" onClick={handleRejectIndividual} disabled={submitting} className="flex-1 text-red-600 border-red-200 hover:bg-red-50">
+                <Ban className="w-4 h-4" /> Từ chối (hoàn 80%)
+              </Button>
+              <Button onClick={handleSubmit} disabled={submitting || !startDate || !indivEligible} variant="mint" className="flex-1">
+                {submitting ? 'Đang lập...' : <><Send className="w-4 h-4" /> Đạt & lập HĐ</>}
               </Button>
             </>
           )}
