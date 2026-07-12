@@ -71,11 +71,12 @@ export default function SettingsPage() {
 
   const roleLabel = ROLE_LABELS[user?.role] || 'Nhân viên'
   const roleColor = ROLE_COLORS[user?.role] || 'terracotta'
-  const colorClasses = {
+  const colorClasses = ({
     terracotta: { bg: 'bg-terracotta-500', text: 'text-terracotta-500', bgLight: 'bg-terracotta-50' },
     mint: { bg: 'bg-mint', text: 'text-mint-dark', bgLight: 'bg-mint-light' },
     gold: { bg: 'bg-gold', text: 'text-gold', bgLight: 'bg-gold-light' },
-  }[roleColor]
+    ink: { bg: 'bg-ink', text: 'text-ink', bgLight: 'bg-cream-dark' },
+  })[roleColor] || { bg: 'bg-terracotta-500', text: 'text-terracotta-500', bgLight: 'bg-terracotta-50' }
 
   // ===== Card 1: Thông tin cá nhân =====
   const [profile, setProfile] = useState({
