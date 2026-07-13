@@ -2,17 +2,11 @@ import { useState, useMemo, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  calculateStayDuration, CHECKOUT_STATUS_CONFIG
-} from '@/lib/managerUi'
+import { calculateStayDuration, CHECKOUT_STATUS_CONFIG } from '@/lib/managerUi'
 import { api } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
-import { timeAgo } from '@/lib/statsHelpers'
-import {
-  Home, CheckCircle2, Clock, X, MapPin, Phone, Calendar,
-  ChevronRight, AlertCircle, Zap, Droplet, Plus, Trash2,
-  Send, Eye, TrendingDown, FileCheck, Calculator, ArrowRight
-} from 'lucide-react'
+
+import { Home, CheckCircle2, Clock, X, MapPin, Phone, Calendar, AlertCircle, Zap, Droplet, Plus, Trash2, Send, Eye, TrendingDown, FileCheck, Calculator, ArrowRight } from 'lucide-react'
 
 // Trạng thái phiếu trả phòng (DB) -> trạng thái UI
 const CHECKOUT_STATUS_MAP = {
@@ -217,7 +211,6 @@ function CheckoutCard({ request, onAction }) {
 // ============== MODAL: KIỂM TRA TRẢ PHÒNG ==============
 function InspectionModal({ request, onClose, onCompleted }) {
   const { user } = useAuth()
-  const h = request.handoverInfo || {}
 
   // Quản lý nhập trực tiếp tiền điện/nước CÒN THIẾU (cách tính do QL tự kiểm soát, ngoài phạm vi app)
   const [dienOwed, setDienOwed] = useState('')
@@ -249,7 +242,6 @@ function InspectionModal({ request, onClose, onCompleted }) {
 
   const refundRateLabels = {
     expired: { label: 'Hết hạn HĐ', rate: 100 },
-    over_6m: 'Lưu trú trên 6 tháng',
     over_6m: { label: 'Lưu trú ≥ 6 tháng', rate: 70 },
     under_6m: { label: 'Lưu trú < 6 tháng', rate: 50 },
   }

@@ -5,10 +5,7 @@ import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { DEPOSIT_SLIP_CONFIG } from '@/lib/saleUi'
 import { timeAgo } from '@/lib/statsHelpers'
-import {
-  Wallet, Search, MapPin, Phone, Clock, X, ChevronRight,
-  CreditCard, Calendar, AlertCircle, FileText, Loader2
-} from 'lucide-react'
+import { Wallet, Search, MapPin, Phone, Clock, X, ChevronRight, CreditCard, AlertCircle, FileText, Loader2 } from 'lucide-react'
 
 const TABS = [
   { id: 'all', label: 'Tất cả' },

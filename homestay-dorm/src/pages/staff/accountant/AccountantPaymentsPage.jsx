@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { reconcilePayment, PAYMENT_STATUS_CONFIG, PAYMENT_TYPES } from '@/lib/accountantUi'
 import { api } from '@/lib/api'
-import { fmtDateTime } from '@/lib/utils'
-import { timeAgo } from '@/lib/statsHelpers'
+
 
 // Trạng thái phiếu cọc (DB) -> trạng thái giao dịch UI
 const PAY_STATUS = { cho_thanh_toan: 'pending', cho_duyet: 'reviewed', da_thanh_toan: 'confirmed', da_huy: 'not_found' }
@@ -38,12 +37,7 @@ function mapTxn(d) {
     notFoundReason: d.ly_do_huy || '',   // lý do Kế toán ghi khi "Không tìm thấy giao dịch"
   }
 }
-import {
-  CreditCard, CheckCircle2, XCircle, Clock, X, MapPin, Phone,
-  Banknote, FileImage, Hash, Calendar, AlertCircle, ChevronRight,
-  CheckCheck, AlertTriangle, TrendingDown, TrendingUp, SearchX,
-  RotateCcw, Send
-} from 'lucide-react'
+import { CreditCard, CheckCircle2, Clock, X, MapPin, Phone, Banknote, FileImage, AlertCircle, ChevronRight, CheckCheck, TrendingDown, TrendingUp, SearchX } from 'lucide-react'
 
 const TABS = [
   { id: 'pending', label: 'Chờ đối soát', icon: Clock },
@@ -480,48 +474,4 @@ function ReconcileModal({ txn, onClose, onUpdated }) {
       </div>
     </div>
   )
-}
-
-// === Component hiển thị kết quả đã xử lý ===
-function StatusResult({ txn }) {
-  if (txn.status === 'confirmed') {
-    return (
-      <div className="p-3 bg-mint-light/40 border border-mint/30 rounded-lg flex items-center gap-2 text-sm text-mint-dark font-medium">
-        <CheckCircle2 className="w-4 h-4" /> Khớp đủ — đã xác nhận lúc {fmtDateTime(txn.reconciledAt)}
-      </div>
-    )
-  }
-  if (txn.status === 'underpaid') {
-    return (
-      <div className="p-3 bg-terracotta-50 border border-terracotta-200 rounded-lg text-sm">
-        <div className="text-terracotta-600 font-medium flex items-center gap-2 mb-2"><TrendingDown className="w-4 h-4" /> Thiếu tiền — chờ khách chuyển bù</div>
-        <div className="space-y-1 text-ink-soft text-xs">
-          <div className="flex justify-between"><span>Cần thu:</span><span className="font-semibold">{txn.amount.toLocaleString('vi-VN')}đ</span></div>
-          <div className="flex justify-between"><span>Đã nhận:</span><span className="font-semibold">{txn.receivedAmount.toLocaleString('vi-VN')}đ</span></div>
-          <div className="flex justify-between text-terracotta-600"><span>Còn thiếu:</span><span className="font-bold">{txn.shortfall.toLocaleString('vi-VN')}đ</span></div>
-        </div>
-      </div>
-    )
-  }
-  if (txn.status === 'overpaid') {
-    return (
-      <div className="p-3 bg-gold-light/40 border border-gold/30 rounded-lg text-sm">
-        <div className="text-gold font-medium flex items-center gap-2 mb-2"><TrendingUp className="w-4 h-4" /> Dư tiền — cần hoàn lại khách</div>
-        <div className="space-y-1 text-ink-soft text-xs">
-          <div className="flex justify-between"><span>Cần thu:</span><span className="font-semibold">{txn.amount.toLocaleString('vi-VN')}đ</span></div>
-          <div className="flex justify-between"><span>Đã nhận:</span><span className="font-semibold">{txn.receivedAmount.toLocaleString('vi-VN')}đ</span></div>
-          <div className="flex justify-between text-gold"><span>Dư:</span><span className="font-bold">{txn.excess.toLocaleString('vi-VN')}đ</span></div>
-        </div>
-      </div>
-    )
-  }
-  if (txn.status === 'not_found') {
-    return (
-      <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm">
-        <div className="text-red-600 font-medium flex items-center gap-2 mb-1"><SearchX className="w-4 h-4" /> Không tìm thấy giao dịch</div>
-        <div className="text-ink-soft text-xs">Ghi chú: {txn.notFoundReason}</div>
-      </div>
-    )
-  }
-  return null
 }

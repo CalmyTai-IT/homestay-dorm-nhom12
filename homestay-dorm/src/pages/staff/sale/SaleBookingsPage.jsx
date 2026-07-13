@@ -3,9 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
-import {
-  groupSaleBookings, SALE_STATUS_CONFIG, VIEWING_SLOTS, calculatePriority, PRIORITY_CONFIG
-} from '@/lib/saleUi'
+import { groupSaleBookings, SALE_STATUS_CONFIG, VIEWING_SLOTS, calculatePriority, PRIORITY_CONFIG } from '@/lib/saleUi'
 import { timeAgo } from '@/lib/statsHelpers'
 
 // Trạng thái đơn (DB) -> trạng thái mock mà trang đang dùng
@@ -48,11 +46,7 @@ function mapSaleBooking(b) {
     },
   }
 }
-import {
-  ClipboardList, Calendar, Eye, CheckCircle2, X, Phone, Mail,
-  MapPin, Users, Clock, ChevronRight, AlertCircle, CreditCard,
-  CheckCheck, XCircle, User, Sparkles
-} from 'lucide-react'
+import { ClipboardList, Calendar, Eye, CheckCircle2, X, Phone, Mail, MapPin, Users, ChevronRight, AlertCircle, CreditCard, CheckCheck, XCircle, User, Sparkles } from 'lucide-react'
 
 const TABS = [
   { id: 'pending', label: 'Chờ xử lý', icon: ClipboardList },
@@ -280,6 +274,14 @@ function SaleBookingCard({ booking, onOpenDetail, roomsById = {} }) {
             <span className="flex items-center gap-0.5"><MapPin className="w-3 h-3" />{booking.roomId} ({booking.branch})</span>
             <span>·</span>
             <span>{booking.rentType === 'whole_room' ? 'Nguyên phòng' : 'Thuê ghép'}</span>
+            {room && (
+              <>
+                <span>·</span>
+                <span>{(booking.rentType === 'whole_room' ? room.priceWholeRoom : room.pricePerBed)?.toLocaleString('vi-VN')}đ{booking.rentType === 'whole_room' ? '/phòng' : '/giường'}</span>
+                <span>·</span>
+                <span>còn {room.bedsAvailable}/{room.capacity} giường</span>
+              </>
+            )}
             <span>·</span>
             <span className="flex items-center gap-0.5"><Phone className="w-3 h-3" />{booking.customer.phone}</span>
           </div>
@@ -405,6 +407,12 @@ function BookingDetailModal({ booking, onClose, onUpdated, roomsById = {} }) {
                 <InfoGrid items={[
                   { label: 'Phòng', value: `${booking.roomId} — ${booking.branch}` },
                   { label: 'Hình thức', value: booking.rentType === 'whole_room' ? 'Thuê nguyên phòng' : 'Thuê giường (ghép)' },
+                  ...(room ? [
+                    { label: 'Loại phòng', value: room.type },
+                    { label: 'Giá', value: `${(booking.rentType === 'whole_room' ? room.priceWholeRoom : room.pricePerBed)?.toLocaleString('vi-VN')}đ${booking.rentType === 'whole_room' ? '/phòng' : '/giường/tháng'}` },
+                    { label: 'Sức chứa', value: `${room.capacity} người · còn ${room.bedsAvailable} giường` },
+                    ...(room.amenities?.length ? [{ label: 'Tiện ích', value: room.amenities.join(', ') }] : []),
+                  ] : []),
                   { label: 'Số giường', value: `${booking.numberOfBeds} giường` },
                   { label: 'Thời hạn', value: `${booking.duration} tháng` },
                   { label: 'Ngày vào ở', value: new Date(booking.moveInDate).toLocaleDateString('vi-VN') },

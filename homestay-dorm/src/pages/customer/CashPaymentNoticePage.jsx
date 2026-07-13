@@ -3,10 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { api } from '@/lib/api'
-import {
-  Banknote, MapPin, Clock, AlertCircle, FileText, Home,
-  CheckCircle2, Phone, ArrowRight, Building2, Calendar
-} from 'lucide-react'
+import { Banknote, Clock, AlertCircle, FileText, Home, CheckCircle2, Phone, Building2, Calendar } from 'lucide-react'
 
 export default function CashPaymentNoticePage() {
   const { code } = useParams()

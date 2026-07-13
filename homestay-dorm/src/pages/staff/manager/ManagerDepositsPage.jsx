@@ -4,13 +4,8 @@ import { Button } from '@/components/ui/button'
 import { MANAGER_DEPOSIT_STATUS_CONFIG } from '@/lib/managerUi'
 import { api } from '@/lib/api'
 import { fmtDateTime } from '@/lib/utils'
-import { useAuth } from '@/context/AuthContext'
 import { timeAgo } from '@/lib/statsHelpers'
-import {
-  CreditCard, CheckCircle2, Clock, X, MapPin, Phone, Banknote,
-  ChevronRight, AlertCircle, CheckCheck, UserCheck, RotateCcw,
-  XCircle, AlertTriangle
-} from 'lucide-react'
+import { CreditCard, CheckCircle2, Clock, X, MapPin, Phone, Banknote, ChevronRight, CheckCheck, UserCheck, RotateCcw, XCircle, AlertTriangle } from 'lucide-react'
 
 const TABS = [
   { id: 'pending_manager', label: 'Chờ xác nhận', icon: Clock },
@@ -186,7 +181,6 @@ function DepositCard({ deposit, onOpen }) {
 }
 
 function ConfirmModal({ deposit, onClose, onUpdated }) {
-  const { user } = useAuth()
 
   // mode: 'view' | 'confirm' | 'return' | 'reject'
   const [mode, setMode] = useState('view')

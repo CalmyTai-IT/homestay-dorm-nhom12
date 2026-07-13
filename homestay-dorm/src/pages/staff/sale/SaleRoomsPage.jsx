@@ -4,14 +4,8 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
-import {
-  ROOM_STATUS_CONFIG, getRoomStatus,
-  BRANCHES, AMENITIES, GENDERS, CAPACITIES, PRICE_RANGES
-} from '@/lib/roomUi'
-import {
-  Building2, Search, MapPin, Users, CheckCircle2,
-  Wrench, X, Phone, Eye
-} from 'lucide-react'
+import { ROOM_STATUS_CONFIG, getRoomStatus, BRANCHES, GENDERS, CAPACITIES } from '@/lib/roomUi'
+import { Building2, Search, MapPin, Users, CheckCircle2, Wrench, X, Eye } from 'lucide-react'
 
 export default function SaleRoomsPage() {
   const { user } = useAuth()

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Check, X, ChevronRight } from 'lucide-react'
+import { Bell, Check, ChevronRight } from 'lucide-react'
 import { formatRelativeTime } from '@/lib/notificationHelpers'
 import { api } from '@/lib/api'
 
@@ -10,11 +10,6 @@ export default function NotificationDropdown() {
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
 
-  // Load notifications khi component mount + khi mở dropdown
-  useEffect(() => {
-    refreshNotifications()
-  }, [isOpen])
-
   const refreshNotifications = async () => {
     try {
       const list = await api.listNotifications()
@@ -22,6 +17,11 @@ export default function NotificationDropdown() {
       setUnreadCount(list.filter(n => !n.isRead).length)
     } catch { /* bỏ qua nếu lỗi/chưa đăng nhập */ }
   }
+
+  // Load notifications khi component mount + khi mở dropdown
+  useEffect(() => {
+    refreshNotifications()
+  }, [isOpen])
 
   // Click 1 notification → đánh dấu đã đọc + chuyển trang
   const handleClickNotif = (notif) => {

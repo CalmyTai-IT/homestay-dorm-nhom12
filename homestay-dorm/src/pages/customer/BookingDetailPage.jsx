@@ -8,11 +8,7 @@ import { useAuth } from '@/context/AuthContext'
 import BookingStatusBadge from '@/components/customer/BookingStatusBadge'
 import ContactDialog from '@/components/customer/ContactDialog'
 import CancelBookingDialog from '@/components/customer/CancelBookingDialog'
-import {
-  ArrowLeft, MapPin, Calendar, Phone, Mail, CreditCard,
-  Users, Clock, CheckCircle2, X, MessageCircle, FileText,
-  AlertCircle
-} from 'lucide-react'
+import { ArrowLeft, MapPin, Calendar, Phone, Mail, CreditCard, Clock, CheckCircle2, X, MessageCircle, FileText, AlertCircle } from 'lucide-react'
 
 // Timeline các bước theo trạng thái
 const TIMELINE_STEPS = [

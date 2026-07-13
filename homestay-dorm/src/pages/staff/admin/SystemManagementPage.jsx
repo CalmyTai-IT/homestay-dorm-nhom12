@@ -115,7 +115,7 @@ function ConfirmDelete({ open, onClose, onConfirm, name }) {
 
 // ============ TAB 1: QUẢN LÝ NHÂN VIÊN ============
 
-function StaffPanel({ actor }) {
+function StaffPanel() {
   const { user } = useAuth()
   const [list, setList] = useState([])
   const [branches, setBranches] = useState([])
@@ -324,7 +324,7 @@ function StaffPanel({ actor }) {
 
 // ============ TAB 2: QUẢN LÝ CHI NHÁNH ============
 
-function BranchPanel({ actor }) {
+function BranchPanel() {
   const [list, setList] = useState([])
   const [msg, setMsg] = useState(null)
   const [editing, setEditing] = useState(null)
@@ -455,7 +455,7 @@ function BranchPanel({ actor }) {
 
 // ============ TAB 3: CẤU HÌNH QUY ĐỊNH & HỆ THỐNG ============
 
-function ConfigPanel({ actor }) {
+function ConfigPanel() {
   const [cfg, setCfg] = useState({
     depositMonths: 2, depositDeadlineHours: 24,
     refundRates: { notSigned: 80, under6m: 50, over6m: 70, expired: 100 },

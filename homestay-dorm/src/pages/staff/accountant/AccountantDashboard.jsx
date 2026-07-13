@@ -6,14 +6,8 @@ import { Button } from '@/components/ui/button'
 import StatCard from '@/components/staff/StatCard'
 import { formatMoney, timeAgo } from '@/lib/statsHelpers'
 import { api } from '@/lib/api'
-import {
-  Wallet, TrendingUp, Calculator,
-  ArrowRight, ChevronRight
-} from 'lucide-react'
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell
-} from 'recharts'
+import { Wallet, TrendingUp, Calculator, ArrowRight } from 'lucide-react'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 // Bảng màu theo design system "Warm Hospitality"
 const COLORS = {

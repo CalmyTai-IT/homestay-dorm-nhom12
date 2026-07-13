@@ -3,9 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { api } from '@/lib/api'
-import {
-  CheckCircle2, Home, FileText, Calendar, Phone, ArrowRight
-} from 'lucide-react'
+import { CheckCircle2, FileText, Calendar, Phone, ArrowRight } from 'lucide-react'
 
 export default function PaymentSuccessPage() {
   const { code } = useParams()

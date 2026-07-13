@@ -5,11 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CONTRACT_STATUS_CONFIG } from '@/lib/managerUi'
 import { api } from '@/lib/api'
-import { timeAgo } from '@/lib/statsHelpers'
-import {
-  FileText, Plus, X, MapPin, Phone, Calendar, ChevronRight,
-  AlertCircle, FilePenLine, CheckCircle2, Clock, Send, Loader2, Ban, Users
-} from 'lucide-react'
+
+import { FileText, Plus, X, MapPin, Calendar, ChevronRight, AlertCircle, FilePenLine, CheckCircle2, Clock, Send, Loader2, Ban, Users } from 'lucide-react'
 
 // ===== Bộ chuyển dữ liệu API -> shape UI =====
 const CONTRACT_STATUS_MAP = { cho_ky: 'draft', da_ky: 'signed', dang_hieu_luc: 'active', da_thanh_ly: 'ended' }
@@ -137,7 +134,7 @@ export default function ManagerContractsPage() {
       <div className="flex gap-1 border-b border-cream-dark mb-6 overflow-x-auto">
         {TABS.map(tab => {
           const Icon = tab.icon
-          let count = 0
+          let count
           if (tab.id === 'create') count = deposits.length
           else count = grouped[tab.id]?.length || 0
           const isActive = activeTab === tab.id

@@ -1,18 +1,13 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { api } from '@/lib/api'
-import {
-  CONTACT_TIME_SLOTS, CONTACT_METHODS, DURATION_OPTIONS
-} from '@/lib/bookingUi'
-import {
-  ArrowLeft, ArrowRight, Check, User, Phone, Mail, CreditCard,
-  Users, Calendar, Clock, Home, Plus, X, AlertCircle, MapPin
-} from 'lucide-react'
+import { CONTACT_TIME_SLOTS, CONTACT_METHODS, DURATION_OPTIONS } from '@/lib/bookingUi'
+import { ArrowLeft, ArrowRight, Check, User, Phone, Mail, CreditCard, Users, Plus, X, AlertCircle, MapPin } from 'lucide-react'
 
 export default function RegisterRentalPage() {
   const { id } = useParams()

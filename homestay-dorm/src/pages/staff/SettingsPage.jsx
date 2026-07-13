@@ -6,10 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  User, Mail, Phone, Building2, BadgeCheck, Calendar,
-  Lock, Bell, Check, AlertCircle, Eye, EyeOff, Save
-} from 'lucide-react'
+import { User, Building2, BadgeCheck, Calendar, Lock, Bell, Check, AlertCircle, Eye, EyeOff, Save } from 'lucide-react'
 
 // Banner thông báo kết quả (thành công / lỗi)
 function Banner({ msg }) {
@@ -85,6 +82,13 @@ export default function SettingsPage() {
     phone: user?.phone || '',
   })
   const [profileMsg, setProfileMsg] = useState(null)
+
+  // Tùy chọn thông báo (khai báo TRƯỚC effect bên dưới vì effect có dùng setPrefs)
+  const [prefs, setPrefs] = useState({
+    emailNotif: user?.preferences?.emailNotif ?? true,
+    smsNotif: user?.preferences?.smsNotif ?? false,
+    desktopNotif: user?.preferences?.desktopNotif ?? true,
+  })
 
   // Tải hồ sơ nhân viên thật (SĐT + tuỳ chọn không có sẵn trong token)
   useEffect(() => {
@@ -163,12 +167,6 @@ export default function SettingsPage() {
     }
   }
 
-  // ===== Card 3: Tùy chọn thông báo =====
-  const [prefs, setPrefs] = useState({
-    emailNotif: user?.preferences?.emailNotif ?? true,
-    smsNotif: user?.preferences?.smsNotif ?? false,
-    desktopNotif: user?.preferences?.desktopNotif ?? true,
-  })
 
   const togglePref = (key) => {
     const nextVal = !prefs[key]

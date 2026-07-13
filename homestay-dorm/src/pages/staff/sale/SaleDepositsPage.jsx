@@ -5,10 +5,7 @@ import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { DEPOSIT_SLIP_CONFIG } from '@/lib/saleUi'
 import { timeAgo } from '@/lib/statsHelpers'
-import {
-  CreditCard, Plus, X, Clock, CheckCircle2, MapPin, Phone,
-  ChevronRight, AlertCircle, Banknote, FileText, Send, Calculator, Loader2
-} from 'lucide-react'
+import { Plus, X, Clock, CheckCircle2, MapPin, Phone, AlertCircle, FileText, Send, Calculator, Loader2 } from 'lucide-react'
 
 const TABS = [
   { id: 'create', label: 'Lập phiếu mới', icon: Plus },
@@ -120,7 +117,7 @@ export default function SaleDepositsPage() {
       <div className="flex gap-1 border-b border-cream-dark mb-6 overflow-x-auto">
         {TABS.map(tab => {
           const Icon = tab.icon
-          let count = 0
+          let count
           if (tab.id === 'create') count = viewedBookings.length
           else count = groupedSlips[tab.id]?.length || 0
           const isActive = activeTab === tab.id

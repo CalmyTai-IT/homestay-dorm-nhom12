@@ -1,17 +1,11 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  STANDARD_HANDOVER_ITEMS, ITEM_CONDITIONS
-} from '@/lib/managerUi'
+import { STANDARD_HANDOVER_ITEMS, ITEM_CONDITIONS } from '@/lib/managerUi'
 import { api } from '@/lib/api'
-import { useAuth } from '@/context/AuthContext'
-import { timeAgo } from '@/lib/statsHelpers'
-import {
-  Home, CheckCircle2, Clock, X, MapPin, Phone, Calendar,
-  ChevronRight, AlertCircle, Zap, Droplet, Key, Send, Eye, Package
-} from 'lucide-react'
+
+import { Home, CheckCircle2, Clock, X, MapPin, Phone, Calendar, AlertCircle, Zap, Droplet, Key, Send, Eye, Package } from 'lucide-react'
 
 const TABS = [
   { id: 'pending', label: 'Chờ bàn giao', icon: Clock },
@@ -175,7 +169,6 @@ function ContractCard({ contract, isPending, onAction }) {
 
 // ============== MODAL: BÀN GIAO PHÒNG ==============
 function HandoverModal({ contract, onClose, onCompleted }) {
-  const { user } = useAuth()
 
   // Khởi tạo danh sách tài sản từ chuẩn
   const [items, setItems] = useState(

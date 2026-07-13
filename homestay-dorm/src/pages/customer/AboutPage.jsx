@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import {
-  Heart, Shield, Sparkles, Users, MapPin, Phone, Mail, Clock,
-  ChevronDown, ArrowRight, Building2, Award, Target, HandHeart
-} from 'lucide-react'
+import { Shield, Sparkles, Users, MapPin, Phone, Mail, Clock, ChevronDown, ArrowRight, Award, Target, HandHeart } from 'lucide-react'
 
 // Dữ liệu chi nhánh
 const BRANCHES = [

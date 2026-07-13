@@ -273,7 +273,7 @@ export default function PaymentPage() {
                         {Array.from({ length: 144 }).map((_, i) => (
                           <div
                             key={i}
-                            className={`aspect-square ${Math.random() > 0.5 ? 'bg-ink' : 'bg-transparent'} ${
+                            className={`aspect-square ${((i * 37 + (i % 7) * 13) % 3 === 0) ? 'bg-ink' : 'bg-transparent'} ${
                               (i < 24 || i % 12 < 2 || i % 12 > 9 || i > 119) && (i < 36 || i > 108) ? 'bg-ink' : ''
                             }`}
                           />

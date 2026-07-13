@@ -22,7 +22,7 @@ function loadPushedIds(role) {
 function savePushedIds(role, set) {
   try {
     localStorage.setItem(PUSHED_PREFIX + role, JSON.stringify([...set]))
-  } catch {}
+  } catch { /* bỏ qua lỗi localStorage */ }
 }
 
 // Giá trị mặc định cho tùy chọn thông báo (khi user chưa thiết lập)
@@ -115,7 +115,7 @@ export default function StaffNotificationDropdown() {
   // Đồng bộ + đẩy thông báo mới qua các kênh đang bật
   const syncAndNotify = async () => {
     if (!user?.role) return
-    let list = []
+    let list
     try { list = await api.listNotifications() } catch { return }
     setNotifications(list)
     setUnreadCount(list.filter(n => !n.isRead).length)

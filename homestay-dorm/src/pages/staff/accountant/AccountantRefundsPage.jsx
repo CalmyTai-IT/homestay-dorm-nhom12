@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+
 import { calculateRefund, REFUND_STATUS_CONFIG, REFUND_RATE_RULES } from '@/lib/accountantUi'
 import { api } from '@/lib/api'
 import { timeAgo } from '@/lib/statsHelpers'
@@ -37,10 +37,7 @@ function mapRefund(t) {
     } : null,
   }
 }
-import {
-  Calculator, CheckCircle2, Clock, X, MapPin, Phone, Plus, Trash2,
-  ChevronRight, AlertCircle, TrendingDown, Wallet, ArrowRight, FileText, RotateCcw, Users
-} from 'lucide-react'
+import { Calculator, CheckCircle2, Clock, X, MapPin, Phone, ChevronRight, AlertCircle, TrendingDown, Wallet, FileText, RotateCcw, Users } from 'lucide-react'
 
 const TABS = [
   { id: 'pending', label: 'Chờ xử lý', icon: Clock },
@@ -305,8 +302,7 @@ function RefundModal({ refund, onClose, onUpdated }) {
   })()
   const [rateKey, setRateKey] = useState(initialRateKey)
   // Các khoản khấu trừ
-  const [deductions, setDeductions] = useState(refund.deductions || [])
-  const [newDeduction, setNewDeduction] = useState({ label: '', amount: '' })
+  const [deductions] = useState(refund.deductions || [])
   const [submitting, setSubmitting] = useState(false)
   const isCompleted = refund.status === 'completed'
 
@@ -315,19 +311,6 @@ function RefundModal({ refund, onClose, onUpdated }) {
     () => calculateRefund(refund.depositAmount, rateKey, deductions),
     [refund.depositAmount, rateKey, deductions]
   )
-
-  const addDeduction = () => {
-    if (!newDeduction.label.trim() || !newDeduction.amount || Number(newDeduction.amount) <= 0) {
-      alert('Vui lòng nhập đủ tên khoản và số tiền khấu trừ')
-      return
-    }
-    setDeductions([...deductions, { label: newDeduction.label.trim(), amount: Number(newDeduction.amount) }])
-    setNewDeduction({ label: '', amount: '' })
-  }
-
-  const removeDeduction = (idx) => {
-    setDeductions(deductions.filter((_, i) => i !== idx))
-  }
 
   // Lưu đối soát (chưa hoàn tiền)
   const reconcilePayload = () => ({

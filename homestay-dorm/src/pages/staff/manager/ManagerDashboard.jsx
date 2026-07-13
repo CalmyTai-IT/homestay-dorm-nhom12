@@ -4,12 +4,9 @@ import { useAuth } from '@/context/AuthContext'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import StatCard from '@/components/staff/StatCard'
-import { formatMoney, timeAgo } from '@/lib/statsHelpers'
+import { timeAgo } from '@/lib/statsHelpers'
 import { api } from '@/lib/api'
-import {
-  Building2, Home, CreditCard, FileText,
-  ArrowRight, CheckCircle2, ChevronRight, Banknote
-} from 'lucide-react'
+import { Building2, Home, CreditCard, FileText, ArrowRight, Banknote } from 'lucide-react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 
 // Bảng màu theo design system "Warm Hospitality"

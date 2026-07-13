@@ -3,12 +3,7 @@ import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { ROLE_LABELS, ROLE_COLORS } from '@/lib/staffUi'
 import { Button } from '@/components/ui/button'
-import {
-  LayoutDashboard, Users, FileText, CreditCard, Building2,
-  ClipboardList, Wallet, Calculator, Home, LogOut, Menu, X,
-  Bell, ChevronDown, Settings, Search, MapPin, Phone,
-  ShieldCheck
-} from 'lucide-react'
+import { LayoutDashboard, FileText, CreditCard, Building2, ClipboardList, Wallet, Calculator, Home, LogOut, Menu, X, ChevronDown, Settings, Search, ShieldCheck } from 'lucide-react'
 import { api } from '@/lib/api'
 import StaffNotificationDropdown from '@/components/staff/StaffNotificationDropdown'
 

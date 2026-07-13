@@ -18,7 +18,7 @@
 --  An toàn chạy lại: phần đầu DROP toàn bộ bảng (CASCADE) rồi tạo mới.
 --
 --  Tài khoản demo (mật khẩu: 123456):
---    sale@homestay.vn / manager@homestay.vn / accountant@homestay.vn
+--    sale@homestay.vn / manager@homestay.vn / accountant@homestay.vn / admin@homestay.vn
 -- ============================================================================
 
 BEGIN;
@@ -58,7 +58,8 @@ CREATE TABLE nhan_vien (
   email         varchar NOT NULL UNIQUE,
   mat_khau_hash varchar NOT NULL,
   vai_tro       varchar NOT NULL
-                  CHECK (vai_tro IN ('sale','manager','accountant')),
+                  -- [migration_admin_role] thêm vai trò 'admin' (IT / quản trị hệ thống)
+                  CHECK (vai_tro IN ('sale','manager','accountant','admin')),
   chi_nhanh_id  bigint REFERENCES chi_nhanh(id),   -- NULL = nhân viên toàn hệ thống
   so_dien_thoai varchar,
   ngay_vao_lam  date,
@@ -447,6 +448,11 @@ INSERT INTO nhan_vien (ho_ten, email, mat_khau_hash, vai_tro, chi_nhanh_id, so_d
   ('NV Sale Demo',  'sale@homestay.vn',       '$2b$10$kKzdC.45W1vyjcn6A9nRgOEgCP928qUKXVqzMUiDgFHfwQQYKcBE2', 'sale',       NULL, '0900000001', '2025-01-01'),
   ('Quản lý Demo',  'manager@homestay.vn',    '$2b$10$kKzdC.45W1vyjcn6A9nRgOEgCP928qUKXVqzMUiDgFHfwQQYKcBE2', 'manager',    NULL, '0900000002', '2025-01-01'),
   ('Kế toán Demo',  'accountant@homestay.vn', '$2b$10$kKzdC.45W1vyjcn6A9nRgOEgCP928qUKXVqzMUiDgFHfwQQYKcBE2', 'accountant', NULL, '0900000003', '2025-01-01');
+
+--   [migration_admin_role] Tài khoản QUẢN TRỊ HỆ THỐNG (admin / IT) — toàn hệ thống.
+--   Tách quản trị hệ thống (tài khoản, chi nhánh, cấu hình, nhật ký) khỏi Quản lý nghiệp vụ.
+INSERT INTO nhan_vien (ho_ten, email, mat_khau_hash, vai_tro, chi_nhanh_id, so_dien_thoai, ngay_vao_lam) VALUES
+  ('Quản trị hệ thống', 'admin@homestay.vn', '$2b$10$kKzdC.45W1vyjcn6A9nRgOEgCP928qUKXVqzMUiDgFHfwQQYKcBE2', 'admin', NULL, '0900000004', '2025-01-01');
 
 --   Nhân viên KHU VỰC (gắn chi nhánh) — để demo cơ chế phân quyền theo chi nhánh.
 --   Có thể bỏ khối này nếu chỉ cần 3 tài khoản toàn hệ thống ở trên.

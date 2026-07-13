@@ -5,15 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { api } from '@/lib/api'
-import {
-  ROOM_STATUS_CONFIG, getRoomStatus,
-  AMENITIES, GENDERS, CAPACITIES
-} from '@/lib/roomUi'
-import {
-  Building2, Plus, X, Edit2, Trash2, Search, Filter,
-  Users, MapPin, Wrench, CheckCircle2, AlertCircle,
-  Eye, ChevronRight, Save
-} from 'lucide-react'
+import { ROOM_STATUS_CONFIG, getRoomStatus, AMENITIES, GENDERS, CAPACITIES } from '@/lib/roomUi'
+import { Building2, Plus, X, Edit2, Trash2, Search, Users, MapPin, Wrench, CheckCircle2, AlertCircle, Save } from 'lucide-react'
 
 // Thống kê tổng quan tính từ danh sách phòng đã tải (thay cho hàm đọc localStorage)
 function computeStats(rooms) {
