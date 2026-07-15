@@ -64,6 +64,8 @@ export const api = {
   updateStaff: (id, dto) => request('/admin/staff/' + id, { method: 'PUT', body: dto }),
   deleteStaff: (id) => request('/admin/staff/' + id, { method: 'DELETE' }),
   listBranches: () => request('/admin/branches'),
+  // Danh sách chi nhánh (chỉ đọc) cho nhân viên — dùng cho dropdown chọn chi nhánh khi thêm/sửa phòng
+  staffBranches: () => request('/branches'),
   createBranch: (dto) => request('/admin/branches', { method: 'POST', body: dto }),
   updateBranch: (id, dto) => request('/admin/branches/' + id, { method: 'PUT', body: dto }),
   deleteBranch: (id) => request('/admin/branches/' + id, { method: 'DELETE' }),

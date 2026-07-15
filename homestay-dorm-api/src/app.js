@@ -10,6 +10,7 @@ import statsRoutes from './routes/statsRoutes.js'
 import checkoutRoutes from './routes/checkoutRoutes.js'
 import configRoutes from './routes/configRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
+import branchRoutes from './routes/branchRoutes.js'
 import notifyRoutes from './routes/notifyRoutes.js'
 import handoverRoutes from './routes/handoverRoutes.js'
 import { errorHandler } from './middleware/errorHandler.js'
@@ -29,6 +30,7 @@ export function createApp() {
   app.use('/api/stats', statsRoutes)
   app.use('/api/config', configRoutes)
   app.use('/api/admin', adminRoutes)
+  app.use('/api/branches', branchRoutes)
   app.use('/api/notifications', notifyRoutes)
   app.use('/api/handovers', handoverRoutes)
   app.use(errorHandler)

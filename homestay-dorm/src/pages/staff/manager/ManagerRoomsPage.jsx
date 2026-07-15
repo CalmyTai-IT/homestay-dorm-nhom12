@@ -44,7 +44,7 @@ export default function ManagerRoomsPage() {
   useEffect(() => { refresh() }, [])
   // Tải danh sách chi nhánh thật cho dropdown (thay cho mock cũ)
   useEffect(() => {
-    api.listBranches().then(setBranches).catch(() => setBranches([]))
+    api.staffBranches().then(setBranches).catch(() => setBranches([]))
   }, [])
 
   const activeRooms = useMemo(() => rooms.filter(r => r.status !== 'ngung'), [rooms])
@@ -318,7 +318,6 @@ function RoomFormModal({ room, branches = [], lockedBranch = null, onClose, onSa
   const [form, setForm] = useState({
     id: room?.code || '',     // ô "Mã phòng" = mã hiển thị (ma_phong); với phòng đã có thì không cho sửa
     branch: room?.branch || lockedBranch || branches[0] || '',
-    address: room?.address || '',
     type: room?.type || 'Phòng ghép',
     capacity: room?.capacity || 4,
     gender: room?.gender || 'Nam',
@@ -342,8 +341,8 @@ function RoomFormModal({ room, branches = [], lockedBranch = null, onClose, onSa
   }
 
   const handleSubmit = async () => {
-    if (!form.id || !form.branch || !form.address) {
-      alert('Vui lòng nhập đủ mã phòng, chi nhánh, địa chỉ')
+    if (!form.id || !form.branch) {
+      alert('Vui lòng nhập đủ mã phòng và chi nhánh')
       return
     }
     if (form.bedsAvailable > form.capacity) {
@@ -446,14 +445,6 @@ function RoomFormModal({ room, branches = [], lockedBranch = null, onClose, onSa
                   <option value="Phòng ghép">Phòng ghép (ở ghép theo giường)</option>
                   <option value="Phòng nguyên căn">Phòng nguyên căn (thuê nguyên phòng)</option>
                 </select>
-              </div>
-              <div className="col-span-2">
-                <Label className="text-xs mb-1.5 block">Địa chỉ *</Label>
-                <Input
-                  placeholder="VD: 227 Nguyễn Văn Cừ, Q5"
-                  value={form.address}
-                  onChange={e => setForm({ ...form, address: e.target.value })}
-                />
               </div>
             </div>
           </div>

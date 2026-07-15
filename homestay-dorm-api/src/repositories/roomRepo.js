@@ -42,8 +42,12 @@ export const setBedStatus = async (client, bedIds, status) =>
   client.query(`update giuong set trang_thai=$1 where id = any($2::bigint[])`, [status, bedIds])
 
 // ===== Quản lý phòng (UC-HT-13) =====
-export const branchIdByName = async (name) => (await query(
-  `select id from chi_nhanh where ten ilike '%'||$1||'%' or ma_chi_nhanh=$1 order by id limit 1`, [name])).rows[0]?.id
+export const branchIdByName = async (name) => {
+  // Tên/mã chi nhánh rỗng -> KHÔNG khớp (tránh '%%' khớp mọi chi nhánh rồi âm thầm chọn cái đầu tiên)
+  if (!name || !String(name).trim()) return undefined
+  return (await query(
+    `select id from chi_nhanh where ten ilike '%'||$1||'%' or ma_chi_nhanh=$1 order by id limit 1`, [name])).rows[0]?.id
+}
 
 export const roomByCode = async (maPhong) =>
   (await query('select * from phong where ma_phong=$1', [maPhong])).rows[0]
