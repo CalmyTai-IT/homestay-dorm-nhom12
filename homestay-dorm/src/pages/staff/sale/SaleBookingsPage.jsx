@@ -429,10 +429,15 @@ function BookingDetailModal({ booking, onClose, onUpdated, roomsById = {} }) {
                 <Section title={`Thành viên nhóm (${booking.groupMembers.length})`}>
                   <div className="space-y-2">
                     {booking.groupMembers.map((m, i) => (
-                      <div key={i} className="flex items-center gap-3 p-2.5 bg-warm-white rounded-lg text-sm">
-                        <User className="w-4 h-4 text-ink-muted" />
-                        <span className="font-medium">{m.name}</span>
-                        <span className="text-ink-muted text-xs">{m.phone} · {m.gender}</span>
+                      <div key={i} className="flex items-start gap-3 p-2.5 bg-warm-white rounded-lg text-sm">
+                        <User className="w-4 h-4 text-ink-muted shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <div className="font-medium">{m.name}</div>
+                          <div className="text-ink-muted text-xs">
+                            {m.phone} · {m.gender}
+                            {m.idNumber ? ` · Giấy tờ: ${m.idNumber}` : ''}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
