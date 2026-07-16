@@ -4,6 +4,13 @@ const tokenKey = 'homestay_token'
 export const getToken = () => localStorage.getItem(tokenKey)
 export const setToken = (t) => t ? localStorage.setItem(tokenKey, t) : localStorage.removeItem(tokenKey)
 
+// Các endpoint KHÔNG cần đăng nhập: 401 ở đây là do sai thông tin (vd sai mật khẩu),
+// KHÔNG phải hết phiên -> giữ nguyên thông báo gốc, không đăng xuất.
+const PUBLIC_AUTH_PATHS = [
+  '/auth/staff/login', '/auth/customer/login', '/auth/customer/register',
+  '/auth/forgot-password', '/auth/reset-password',
+]
+
 async function request(path, { method = 'GET', body } = {}) {
   const res = await fetch(BASE + path, {
     method,
@@ -11,7 +18,16 @@ async function request(path, { method = 'GET', body } = {}) {
     body: body ? JSON.stringify(body) : undefined,
   })
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.error || `Lỗi ${res.status}`)
+  if (!res.ok) {
+    // 401 trên route CẦN đăng nhập = token hết hạn/không hợp lệ -> dọn phiên (token + user)
+    // để giao diện không còn hiển thị "đã đăng nhập" giả và yêu cầu đăng nhập lại.
+    if (res.status === 401 && !PUBLIC_AUTH_PATHS.includes(path.split('?')[0])) {
+      setToken(null)
+      try { localStorage.removeItem('homestay_user') } catch { /* ignore */ }
+      throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')
+    }
+    throw new Error(data.error || `Lỗi ${res.status}`)
+  }
   return data
 }
 

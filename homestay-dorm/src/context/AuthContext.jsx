@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { setToken } from '@/lib/api'
+import { api, setToken } from '@/lib/api'
 
 // Context này quản lý trạng thái đăng nhập toàn ứng dụng
 // Phân biệt 2 loại user: customer (khách) và staff (nhân viên)
@@ -17,17 +17,20 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Khi app khởi động → đọc user đã login từ localStorage
+  // Khi app khởi động → khôi phục user từ localStorage RỒI xác thực token với server.
+  // Nếu token đã hết hạn/không hợp lệ, đăng xuất ngay để UI không hiển thị "đã đăng nhập" giả
+  // (tránh cảnh navbar hiện đã đăng nhập nhưng thao tác lại báo "Token không hợp lệ / hết phiên").
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('homestay_user')
-      if (stored) {
-        setUser(JSON.parse(stored))
-      }
-    } catch (e) {
-      console.error('Lỗi đọc user từ localStorage:', e)
-    }
-    setLoading(false)
+    let alive = true
+    let stored = null
+    try { stored = localStorage.getItem('homestay_user') } catch (e) { console.error('Lỗi đọc user từ localStorage:', e) }
+    if (!stored) { setLoading(false); return }
+    try { setUser(JSON.parse(stored)) } catch (e) { console.error('Lỗi đọc user từ localStorage:', e) }
+    // Kiểm tra token còn hiệu lực (GET /auth/me). api.request() tự dọn token + user nếu gặp 401.
+    api.me()
+      .then(() => { if (alive) setLoading(false) })
+      .catch(() => { if (alive) { setUser(null); setLoading(false) } })
+    return () => { alive = false }
   }, [])
 
   // Login dùng cho khách hàng (customer)
